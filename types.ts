@@ -23,6 +23,9 @@ export interface SexLog {
 export interface UserProfile {
   name: string;
   language: 'en' | 'zh';
+  averageCycleLength: number;
+  averagePeriodLength: number;
+  onboardingCompleted: boolean;
 }
 
 export interface ChatMessage {

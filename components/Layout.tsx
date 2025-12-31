@@ -1,5 +1,6 @@
+
 import React, { useState, Suspense, lazy } from 'react';
-import { LayoutDashboard, Calendar, Baby, User, Menu, X, Globe } from 'lucide-react';
+import { LayoutDashboard, Calendar, Baby, User, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { StorageService } from '../services/storageService';
 import { t, Language } from '../utils/translations';
@@ -12,10 +13,18 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState(StorageService.getProfile());
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // If on onboarding page, return clean layout
+  if (currentPath === '/onboarding') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        {children}
+      </div>
+    );
+  }
 
   const toggleLanguage = () => {
     const newLang: Language = profile.language === 'en' ? 'zh' : 'en';
@@ -32,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: t(profile.language, 'profile'), path: '/profile', icon: User },
   ];
 
-  const NavContent = () => (
+  const DesktopSidebar = () => (
     <div className="flex flex-col h-full">
       <div className="p-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
@@ -47,7 +56,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Link
               key={item.path}
               to={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                   isActive
                     ? 'bg-pink-50 text-pink-600 font-medium shadow-sm'
@@ -71,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
          </button>
       </div>
       <div className="p-6 text-xs text-slate-400">
-        v1.3.2
+        v1.4.1
       </div>
     </div>
   );
@@ -80,40 +88,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-slate-50 flex">
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 bg-white border-r border-slate-100 h-screen sticky top-0">
-        <NavContent />
+        <DesktopSidebar />
       </aside>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-      )}
-
-      {/* Mobile Sidebar */}
-      <div className={`fixed inset-y-0 left-0 w-64 bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <NavContent />
-      </div>
-
       {/* Main Content */}
-      <main className="flex-1 min-w-0">
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-100 sticky top-0 z-30">
+      <main className="flex-1 min-w-0 pb-20 md:pb-0"> 
+        {/* Mobile Header (Simplified) */}
+        <div className="md:hidden flex items-center justify-center p-4 bg-white border-b border-slate-100 sticky top-0 z-30">
           <h1 className="text-lg font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             {t(profile.language, 'appName')}
           </h1>
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600">
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
 
         <div className="p-4 md:p-8 max-w-5xl mx-auto pb-24">
           {children}
         </div>
         
-        {/* Wrap FloatingChat in Suspense to prevent layout crash if AI module fails */}
+        {/* Wrap FloatingChat in Suspense */}
         <Suspense fallback={null}>
           <FloatingChat />
         </Suspense>
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around items-center px-2 py-2 pb-safe z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentPath.startsWith(item.path);
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${
+                  isActive
+                    ? 'text-pink-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`
+              }
+            >
+              <Icon size={22} className={isActive ? 'fill-current' : ''} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[10px] font-medium mt-1">{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 };

@@ -32,6 +32,21 @@ const Profile: React.FC = () => {
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
           />
 
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+                label={t(lang, 'cycleLength_label')} 
+                type="number" 
+                value={profile.averageCycleLength} 
+                onChange={(e) => setProfile({...profile, averageCycleLength: parseInt(e.target.value) || 28})} 
+            />
+            <Input 
+                label={t(lang, 'periodLength_label')} 
+                type="number" 
+                value={profile.averagePeriodLength} 
+                onChange={(e) => setProfile({...profile, averagePeriodLength: parseInt(e.target.value) || 5})} 
+            />
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">{t(lang, 'language')}</label>
             <div className="flex gap-2">

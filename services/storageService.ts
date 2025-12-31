@@ -11,7 +11,10 @@ const KEYS = {
 
 const defaultProfile: UserProfile = {
   name: 'User',
-  language: 'en'
+  language: 'en',
+  averageCycleLength: 28,
+  averagePeriodLength: 7, // Updated default to 7
+  onboardingCompleted: false
 };
 
 export const StorageService = {

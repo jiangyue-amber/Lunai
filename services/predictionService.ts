@@ -3,19 +3,17 @@ import { CycleLog, PredictionResult, CycleStats, PredictedCycle } from '../types
 import { addDays, diffInDays, getPhase } from '../utils/dateHelpers';
 
 export const PredictionService = {
-  calculateStats: (cycles: CycleLog[]): CycleStats => {
-    const DEFAULT_CYCLE = 28;
-    const DEFAULT_PERIOD = 5;
-
+  calculateStats: (cycles: CycleLog[], defaultCycle = 28, defaultPeriod = 5): CycleStats => {
+    
     if (cycles.length < 2) {
-      let avgPeriod = DEFAULT_PERIOD;
+      let avgPeriod = defaultPeriod;
       if (cycles.length === 1 && cycles[0].endDate) {
          avgPeriod = diffInDays(new Date(cycles[0].endDate), new Date(cycles[0].startDate)) + 1;
       }
       return {
-        avgCycleLength: DEFAULT_CYCLE,
+        avgCycleLength: defaultCycle,
         avgPeriodLength: avgPeriod,
-        lastCycleLength: DEFAULT_CYCLE,
+        lastCycleLength: defaultCycle,
         isIrregular: false,
         cycleVariation: 0
       };
@@ -42,12 +40,12 @@ export const PredictionService = {
     const recentCycleLengths = cycleLengths.slice(0, 6);
     const avgCycleLength = recentCycleLengths.length > 0
       ? Math.round(recentCycleLengths.reduce((a, b) => a + b, 0) / recentCycleLengths.length)
-      : DEFAULT_CYCLE;
+      : defaultCycle;
 
     const recentPeriodLengths = periodLengths.slice(0, 6);
     const avgPeriodLength = recentPeriodLengths.length > 0
       ? Math.round(recentPeriodLengths.reduce((a, b) => a + b, 0) / recentPeriodLengths.length)
-      : DEFAULT_PERIOD;
+      : defaultPeriod;
 
     // Calculate variation range (Max - Min)
     const cycleVariation = recentCycleLengths.length > 1
@@ -59,16 +57,16 @@ export const PredictionService = {
     return {
       avgCycleLength,
       avgPeriodLength,
-      lastCycleLength: cycleLengths.length > 0 ? cycleLengths[0] : DEFAULT_CYCLE,
+      lastCycleLength: cycleLengths.length > 0 ? cycleLengths[0] : defaultCycle,
       isIrregular,
       cycleVariation
     };
   },
 
-  predict: (cycles: CycleLog[]): PredictionResult | null => {
+  predict: (cycles: CycleLog[], defaultCycle = 28, defaultPeriod = 5): PredictionResult | null => {
     if (cycles.length === 0) return null;
 
-    const stats = PredictionService.calculateStats(cycles);
+    const stats = PredictionService.calculateStats(cycles, defaultCycle, defaultPeriod);
     const lastPeriod = cycles[0];
     const lastStartDate = new Date(lastPeriod.startDate);
     

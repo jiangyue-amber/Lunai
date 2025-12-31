@@ -26,7 +26,12 @@ const Dashboard: React.FC = () => {
     setCycles(loadedCycles);
     setSexLogs(loadedSexLogs);
     setDailyLogs(loadedDailyLogs);
-    const result = PredictionService.predict(loadedCycles);
+    // Pass user defaults for calculation
+    const result = PredictionService.predict(
+        loadedCycles, 
+        profile.averageCycleLength, 
+        profile.averagePeriodLength
+    );
     setPrediction(result);
   }, [profile]);
 
@@ -237,7 +242,7 @@ const Dashboard: React.FC = () => {
             >
             {d}
             {hasSexLog && (
-                <Heart size={10} className="absolute -top-1 -right-1 text-purple-400 fill-purple-400" />
+                <Heart size={10} className="absolute -top-1 -right-1 text-purple-400 fill-purple-400 drop-shadow-sm" />
             )}
             {isToday && (
               <div className="absolute inset-0 rounded-full border border-slate-400 pointer-events-none" />
@@ -251,6 +256,10 @@ const Dashboard: React.FC = () => {
 
   const handlePrevMonth = () => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1));
   const handleNextMonth = () => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1));
+  
+  // Phase Highlight Helper
+  const currentPhaseName = prediction?.currentPhase || '';
+  const isPhase = (p: string) => currentPhaseName === p;
 
   return (
     <div className="space-y-6">
@@ -335,6 +344,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-400"></div> Period</div>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-pink-400 opacity-60"></div> Likely</div>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-pink-400 opacity-20"></div> Range</div>
+                <div className="flex items-center gap-1"><Heart size={10} className="text-purple-400 fill-purple-400"/> Activity</div>
             </div>
         </Card>
 
@@ -472,28 +482,35 @@ const Dashboard: React.FC = () => {
         <div className="md:col-span-2 mt-4">
             <h3 className="font-bold text-lg text-slate-800 mb-4 px-1">{t(lang, 'phasesGuide')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-2xl border border-pink-100 shadow-sm">
+                {/* Menstrual */}
+                <div className={`p-4 rounded-2xl border shadow-sm transition-all ${isPhase('Menstrual') ? 'bg-pink-50 border-pink-200 ring-2 ring-pink-100 scale-[1.02]' : 'bg-white border-pink-100'}`}>
                     <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 mb-3">
                         <Droplets size={16} />
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm mb-1">{t(lang, 'menstrual')}</h4>
                     <p className="text-xs text-slate-500 leading-relaxed">{t(lang, 'phaseDesc_menstrual')}</p>
                 </div>
-                <div className="bg-white p-4 rounded-2xl border border-blue-100 shadow-sm">
+
+                {/* Follicular */}
+                <div className={`p-4 rounded-2xl border shadow-sm transition-all ${isPhase('Follicular') ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100 scale-[1.02]' : 'bg-white border-blue-100'}`}>
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mb-3">
                         <Sparkles size={16} />
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm mb-1">{t(lang, 'follicular')}</h4>
                     <p className="text-xs text-slate-500 leading-relaxed">{t(lang, 'phaseDesc_follicular')}</p>
                 </div>
-                <div className="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
+
+                {/* Ovulation */}
+                <div className={`p-4 rounded-2xl border shadow-sm transition-all ${isPhase('Ovulation') ? 'bg-purple-50 border-purple-200 ring-2 ring-purple-100 scale-[1.02]' : 'bg-white border-purple-100'}`}>
                     <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-500 mb-3">
                         <Zap size={16} />
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm mb-1">{t(lang, 'ovulation')}</h4>
                     <p className="text-xs text-slate-500 leading-relaxed">{t(lang, 'phaseDesc_ovulation')}</p>
                 </div>
-                <div className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm">
+
+                {/* Luteal */}
+                <div className={`p-4 rounded-2xl border shadow-sm transition-all ${isPhase('Luteal') ? 'bg-amber-50 border-amber-200 ring-2 ring-amber-100 scale-[1.02]' : 'bg-white border-amber-100'}`}>
                     <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-500 mb-3">
                         <Activity size={16} />
                     </div>

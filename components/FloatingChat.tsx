@@ -13,10 +13,10 @@ const FloatingChat: React.FC = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Adjusted bottom position for mobile to clear Nav Bar */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-tr from-pink-500 to-purple-600 text-white rounded-full shadow-lg shadow-purple-200 hover:scale-105 transition-transform flex items-center gap-2 ${isOpen ? 'hidden' : 'flex'}`}
+        className={`fixed bottom-24 md:bottom-6 right-6 z-50 p-4 bg-gradient-to-tr from-pink-500 to-purple-600 text-white rounded-full shadow-lg shadow-purple-200 hover:scale-105 transition-transform flex items-center gap-2 ${isOpen ? 'hidden' : 'flex'}`}
       >
         <Bot size={24} />
         <span className="font-semibold text-sm hidden md:inline">{t(profile.language, 'askAi')}</span>

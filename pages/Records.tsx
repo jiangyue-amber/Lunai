@@ -69,7 +69,7 @@ const Records: React.FC = () => {
   // --- Calendar Logic ---
 
   const handlePeriodDayToggle = (isoDate: string) => {
-    const newDays = new Set(periodDays);
+    const newDays = new Set<string>(periodDays);
     if (newDays.has(isoDate)) {
       newDays.delete(isoDate);
     } else {
